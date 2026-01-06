@@ -1,0 +1,14 @@
+{
+  "terminal.integrated.profiles.windows": {
+    "Claude CLI": {
+      "path": "powershell.exe",
+      "args": ["-NoExit", "-Command", "cd '${workspaceFolder}'; claude"],
+      "icon": "robot"
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  
+  "terminal.integrated.env.windows": {
+    "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
+  }
+}

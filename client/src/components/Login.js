@@ -1,0 +1,149 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import authService from '../services/authService';
+
+const Login = ({ setIsAuthenticated }) => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const { email, password } = formData;
+
+  const onChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await authService.login({ email, password });
+      setIsAuthenticated(true);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.formCard}>
+        <h2 style={styles.title}>Login to Academy Cafe Hub</h2>
+        {error && <div style={styles.error}>{error}</div>}
+        <form onSubmit={onSubmit} style={styles.form}>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Email</label>
+            <input
+              type="email"
+              name="email"
+              value={email}
+              onChange={onChange}
+              required
+              style={styles.input}
+              placeholder="Enter your email"
+            />
+          </div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Password</label>
+            <input
+              type="password"
+              name="password"
+              value={password}
+              onChange={onChange}
+              required
+              style={styles.input}
+              placeholder="Enter your password"
+            />
+          </div>
+          <button type="submit" disabled={loading} style={styles.button}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+        <p style={styles.linkText}>
+          Don't have an account? <Link to="/register" style={styles.link}>Register here</Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const styles = {
+  container: {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f5f5f5'
+  },
+  formCard: {
+    backgroundColor: 'white',
+    padding: '40px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    width: '100%',
+    maxWidth: '400px'
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: '30px',
+    color: '#333'
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  inputGroup: {
+    marginBottom: '20px'
+  },
+  label: {
+    display: 'block',
+    marginBottom: '5px',
+    color: '#555',
+    fontWeight: '500'
+  },
+  input: {
+    width: '100%',
+    padding: '10px',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    fontSize: '14px',
+    boxSizing: 'border-box'
+  },
+  button: {
+    padding: '12px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '16px',
+    cursor: 'pointer',
+    marginTop: '10px'
+  },
+  error: {
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    padding: '10px',
+    borderRadius: '4px',
+    marginBottom: '20px',
+    border: '1px solid #f5c6cb'
+  },
+  linkText: {
+    textAlign: 'center',
+    marginTop: '20px',
+    color: '#666'
+  },
+  link: {
+    color: '#007bff',
+    textDecoration: 'none'
+  }
+};
+
+export default Login;

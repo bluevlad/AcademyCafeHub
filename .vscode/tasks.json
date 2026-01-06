@@ -1,0 +1,75 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Claude: 대화 시작",
+      "type": "shell",
+      "command": "claude",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Claude: 현재 파일 리뷰",
+      "type": "shell",
+      "command": "claude",
+      "args": ["이 파일 코드 리뷰해줘: ${relativeFile}"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Claude: 선택 영역 설명",
+      "type": "shell",
+      "command": "claude",
+      "args": ["이 코드 설명해줘: ${selectedText}"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Claude: 테스트 작성",
+      "type": "shell",
+      "command": "claude",
+      "args": ["${relativeFile}에 대한 유닛 테스트 작성해줘"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Claude: 에러 해결",
+      "type": "shell",
+      "command": "claude",
+      "args": ["이 에러 해결해줘: ${input:errorMessage}"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "errorMessage",
+      "type": "promptString",
+      "description": "에러 메시지를 입력하세요"
+    },
+    {
+      "id": "customPrompt",
+      "type": "promptString",
+      "description": "Claude에게 요청할 내용"
+    }
+  ]
+}
