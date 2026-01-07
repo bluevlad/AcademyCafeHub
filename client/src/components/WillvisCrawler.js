@@ -40,7 +40,8 @@ const WillvisCrawler = () => {
         };
       }
 
-      const response = await axios.post('http://localhost:5000/api/crawler/naver-cafe/search', requestData);
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await axios.post(`${apiUrl}/api/crawler/naver-cafe/search`, requestData);
 
       if (response.data.success) {
         const fetchedPosts = response.data.data.posts;
