@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: academycafehub-backend
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/academycafehub
+      - JWT_SECRET=your_jwt_secret_key_change_this_in_production
+      - JWT_EXPIRE=7d
+    depends_on:
+      - mongo
+    networks:
+      - academycafehub-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: academycafehub-frontend
+    ports:
+      - "3002:3000"
+    depends_on:
+      - backend
+    networks:
+      - academycafehub-network
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6
+    container_name: academycafehub-mongo
+    volumes:
+      - academycafehub-mongo-data:/data/db
+    networks:
+      - academycafehub-network
+    restart: unless-stopped
+
+networks:
+  academycafehub-network:
+    driver: bridge
+
+volumes:
+  academycafehub-mongo-data:
