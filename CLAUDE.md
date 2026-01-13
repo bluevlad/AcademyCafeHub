@@ -562,6 +562,61 @@ jobs:
 4. **모바일 앱**: React Native로 모바일 버전 개발
 5. **다국어 지원**: i18n으로 영어권 확장
 
+## 로컬 개발 테스트 환경
+
+### 중요: 운영 Docker vs 로컬 테스트 분리
+
+**서버 테스트 작업 시에는 운영 중인 Docker를 사용하지 않고, 로컬 서버를 이용해서 테스트를 진행해야 합니다.**
+
+### 환경 구분
+
+| 환경 | 용도 | Docker Compose 파일 | 포트 |
+|------|------|---------------------|------|
+| **운영** | 실제 서비스 운영 | `C:\Users\bluev\Claude-Opus-bluevlad\docker\docker-compose.production.yml` | Frontend: 4020, Backend: 9020 |
+| **로컬** | 개발/테스트 | `C:\Users\bluev\Claude-Opus-bluevlad\docker\docker-compose.local.yml` | Frontend: 3000, Backend: 8080 |
+
+### 로컬 테스트 실행 방법
+
+```powershell
+# CafeHub 로컬 개발 환경 실행
+docker compose -f "C:\Users\bluev\Claude-Opus-bluevlad\docker\docker-compose.local.yml" --profile cafehub up -d
+
+# 로컬 테스트 환경 중지
+docker compose -f "C:\Users\bluev\Claude-Opus-bluevlad\docker\docker-compose.local.yml" --profile cafehub down
+
+# 로그 확인
+docker logs cafehub-frontend-local
+docker logs cafehub-backend-local
+```
+
+### 소스 코드 직접 실행 (Docker 없이)
+
+#### Backend (Java Spring Boot)
+```powershell
+cd C:\GIT\docker-academy-back-end-JavaSpring-Service
+mvn spring-boot:run
+# 또는
+gradlew bootRun
+```
+
+#### Frontend (React/Node.js)
+```powershell
+cd C:\GIT\AcademyCafeHub
+npm install
+npm run dev
+```
+
+### 포트 정책
+
+- **로컬 개발**: Frontend 3000, Backend 8080 (단일 서비스 개발용)
+- **운영 환경**: CafeHub Frontend 4020, Backend 9020
+
+### 주의사항
+
+1. **운영 컨테이너 건드리지 않기**: `academy-*-prod`, `cafehub-*-prod` 등 `-prod` 접미사가 붙은 컨테이너는 운영용
+2. **로컬 컨테이너 사용**: `*-local` 접미사가 붙은 컨테이너를 테스트에 사용
+3. **포트 충돌 확인**: 로컬 테스트 전 해당 포트(3000, 8080)가 사용 중이지 않은지 확인
+
 ## 문의 및 기여
 - 이슈: GitHub Issues
 - 기여: Pull Request 환영
