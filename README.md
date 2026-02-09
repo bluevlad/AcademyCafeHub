@@ -1,49 +1,106 @@
-# AcademyInsight 시스템 제안서
+# AcademyInsight
 
-## 1. 개요
-**AcademyInsight**는 학원 강사들이 자신(또는 특정 키워드)과 관련된 게시글을 주요 커뮤니티(네이버 카페, 다음 카페, 공무원 공부 갤러리 등)에서 자동으로 수집하고, AI를 통해 긍정/부정 여부를 분석하여 일일 현황을 파악할 수 있는 통합 대시보드 시스템입니다.
+학원 온라인 평판 분석 시스템 - 주요 커뮤니티에서 학원/강사 관련 게시글을 자동 수집하고 분석하는 대시보드
 
----
+## 시스템 구성
 
-## 2. 주요 기능
+| 서비스 | 기술 | 포트 |
+|--------|------|------|
+| Frontend | React 18 + Nginx | 4020 |
+| Backend | Node.js + Express | 8082 |
+| Database | MongoDB 6 | 27017 (내부) |
 
-### 2.1 데이터 수집 (Data Collection)
-- **대상 사이트**: 
-  - 네이버, 다음 카페 (공드림, 취업뽀개기 등)
-  - 디시인사이드 (공무원 공부 갤러리 등)
-- **기능**:
-  - 지정된 키워드(강사명, 과목명 등)로 주기적(예: 1시간, 1일) 자동 검색 및 크롤링
-  - 게시글 제목, 본문, 작성시간, 조회수, 댓글 수 수집
-  - 댓글 내용 수집 (심층 분석용)
+## 브랜치 전략
 
-### 2.2 감성 분석 (Sentiment Analysis)
-- **AI 엔진**:
-  - 수집된 텍스트(제목+본문+댓글)에 대한 자연어 처리 (NLP)
-  - 한국어 특화 감성 분석 모델 적용 (Positive/Negative/Neutral 판별)
-  - 주요 키워드 추출 (Word Cloud)
+| 브랜치 | 용도 |
+|--------|------|
+| `main` | 기본 브랜치 (개발/통합) |
+| `prod` | 운영 배포 (`push` 시 GitHub Actions 자동 배포) |
 
-### 2.3 대시보드 & 리포팅 (Dashboard)
-- **일일 요약**: 오늘 수집된 게시글 수, 긍정/부정 비율 차트 제공
-- **트렌드 분석**: 최근 1주일/1개월 간의 언급량 변화 그래프
-- **실시간 알림**: 부정적 여론 급증 시 알림(Email/SMS)
-- **원문 이동**: 분석 결과에서 클릭 시 해당 게시글 원문으로 링크
+## 주요 기능
 
----
+- **멀티 소스 크롤링**: 네이버 카페, 다음 카페, 디시인사이드
+- **멀티 학원 관리**: 박문각, 에듀윌, 해커스, 공단기, 윌비스 등
+- **관리자 대시보드**: 학원별 게시글 현황, 크롤링 상태 모니터링
+- **감성 분석 (예정)**: AI 기반 긍정/부정 여론 분석
 
-## 3. 로컬 개발 환경 파일
+## 빠른 시작
 
-다음 파일들은 로컬 개발 환경에서만 사용되며 Git에서 제외됩니다 (`.gitignore`):
+### Docker Compose (운영)
+
+```bash
+git clone https://github.com/bluevlad/AcademyInsight.git
+cd AcademyInsight
+docker compose up -d
+```
+
+- Frontend: http://localhost:4020
+- Backend API: http://localhost:8082
+
+### 로컬 개발 (Docker 없이)
+
+```bash
+# 의존성 설치
+npm run install-all
+
+# 서버 + 클라이언트 동시 실행
+npm run dev
+```
+
+## Docker 서비스
+
+```yaml
+# 컨테이너명
+academyinsight-backend    # Backend API
+academyinsight-frontend   # Frontend (Nginx)
+academyinsight-mongo      # MongoDB
+```
+
+## 운영 배포
+
+`prod` 브랜치에 push하면 GitHub Actions (self-hosted runner `insight-mac`)가 자동 배포합니다.
+
+```bash
+# main → prod 배포
+git push origin main:prod
+```
+
+### 배포 워크플로우
+1. Docker 이미지 빌드 (`--no-cache`)
+2. 기존 컨테이너 중지
+3. 새 컨테이너 기동
+4. Health Check (Backend + Frontend)
+5. Slack 알림
+
+## 환경 변수
+
+`.env.example`을 참고하여 `.env` 파일을 생성합니다.
+
+```
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/academyinsight
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRE=7d
+NODE_ENV=development
+```
+
+## 로컬 개발 환경 제외 파일
 
 | 파일/폴더 | 설명 |
 |-----------|------|
-| `package-lock.json` | npm 의존성 잠금 파일 (루트) |
-| `client/package-lock.json` | 클라이언트 npm 의존성 잠금 파일 |
-| `.claude/settings.local.json` | Claude Code 로컬 설정 파일 |
-| `.env` | 환경 변수 파일 (DB 비밀번호, API 키 등) |
-| `node_modules/` | npm 패키지 폴더 |
+| `.env` | 환경 변수 (DB 비밀번호, API 키 등) |
+| `node_modules/` | npm 패키지 |
+| `package-lock.json` | npm 의존성 잠금 파일 |
 | `/debug/` | 디버그 관련 파일 |
 
-### 환경 설정 방법
-1. `.env.example` 파일을 복사하여 `.env` 파일 생성
-2. 필요한 환경 변수 값 설정
-3. `npm install`로 의존성 설치
+## API 엔드포인트
+
+```
+POST /api/auth/login              # 로그인
+POST /api/auth/register           # 회원가입
+GET  /api/academies               # 학원 목록
+GET  /api/crawl-sources           # 크롤링 소스 목록
+POST /api/crawler/crawl           # 크롤링 실행
+GET  /api/posts                   # 게시글 목록
+GET  /api/seed/init               # 초기 데이터 생성
+```
