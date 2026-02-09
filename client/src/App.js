@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
-import WillvisCrawler from './components/WillvisCrawler';
 import AdminDashboard from './components/AdminDashboard';
 import AcademyDetail from './components/AcademyDetail';
 import CrawlStatus from './components/CrawlStatus';
@@ -33,7 +32,6 @@ function App() {
               <Dashboard setIsAuthenticated={setIsAuthenticated} />
             </PrivateRoute>
           } />
-          <Route path="/willvis-crawler" element={<WillvisCrawler />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/academy/:id" element={<AcademyDetail />} />
           <Route path="/crawl-status" element={<CrawlStatus />} />

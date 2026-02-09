@@ -98,11 +98,11 @@ const AdminDashboard = () => {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h1 style={styles.title}>관리 대시보드</h1>
+        <div>
+          <h1 style={styles.title}>AcademyInsight</h1>
+          <p style={styles.subtitle}>학원 온라인 평판 분석 대시보드</p>
+        </div>
         <div style={styles.headerActions}>
-          <button onClick={() => navigate('/willvis-crawler')} style={styles.linkButton}>
-            윌비스 크롤러
-          </button>
           <button onClick={() => navigate('/crawl-status')} style={styles.linkButton}>
             크롤 작업 현황
           </button>
@@ -235,7 +235,8 @@ const styles = {
     borderBottom: '2px solid #333',
     paddingBottom: '16px'
   },
-  title: { margin: 0, fontSize: '24px', color: '#333' },
+  title: { margin: 0, fontSize: '24px', color: '#333', fontWeight: 'bold' },
+  subtitle: { margin: '4px 0 0', fontSize: '13px', color: '#888' },
   headerActions: { display: 'flex', gap: '8px' },
   linkButton: {
     padding: '8px 16px',

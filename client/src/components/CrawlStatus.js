@@ -71,7 +71,7 @@ const CrawlStatus = () => {
     <div style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerLeft}>
-          <button onClick={() => navigate('/admin')} style={styles.backButton}>대시보드</button>
+          <button onClick={() => navigate('/admin')} style={styles.backButton}>AcademyInsight</button>
           <h1 style={styles.title}>크롤 작업 현황</h1>
         </div>
         <button onClick={fetchJobs} style={styles.refreshButton}>새로고침</button>

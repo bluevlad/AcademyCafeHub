@@ -83,7 +83,7 @@ const AcademyDetail = () => {
     <div style={styles.container}>
       {/* 헤더 */}
       <div style={styles.header}>
-        <button onClick={() => navigate('/admin')} style={styles.backButton}>목록으로</button>
+        <button onClick={() => navigate('/admin')} style={styles.backButton}>AcademyInsight</button>
         <h1 style={styles.title}>{academy.name}</h1>
         <span style={styles.slug}>{academy.nameEn} ({academy.slug})</span>
       </div>
