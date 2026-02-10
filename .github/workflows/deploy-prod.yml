@@ -9,6 +9,8 @@ jobs:
   deploy:
     name: Build & Deploy
     runs-on: self-hosted
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
       - name: Checkout code
@@ -61,9 +63,9 @@ jobs:
           echo "Rollback completed"
 
       - name: Notify Slack - Success
-        if: success()
+        if: success() && env.SLACK_WEBHOOK_URL != ''
         run: |
-          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          curl -X POST "$SLACK_WEBHOOK_URL" \
             -H 'Content-Type: application/json' \
             -d "{
               \"text\": \"AcademyInsight 배포 성공\",
@@ -79,9 +81,9 @@ jobs:
             }"
 
       - name: Notify Slack - Failure
-        if: failure()
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
         run: |
-          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          curl -X POST "$SLACK_WEBHOOK_URL" \
             -H 'Content-Type: application/json' \
             -d "{
               \"text\": \"AcademyInsight 배포 실패\",

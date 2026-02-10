@@ -39,8 +39,8 @@ const academies = [
   },
   {
     name: '윌비스',
-    nameEn: 'Willvis',
-    slug: 'willvis',
+    nameEn: 'Willbes',
+    slug: 'willbes',
     keywords: ['윌비스', '윌비스공무원'],
     isActive: true
   }
