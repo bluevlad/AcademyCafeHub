@@ -7,6 +7,7 @@ const crawlerRoutes = require('./routes/crawler');
 const academyRoutes = require('./routes/academy');
 const crawlSourceRoutes = require('./routes/crawlSource');
 const postRoutes = require('./routes/post');
+const dashboardRoutes = require('./routes/dashboard');
 const seedRoutes = require('./routes/seed');
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/crawler', crawlerRoutes);
 app.use('/api/academies', academyRoutes);
 app.use('/api/crawl-sources', crawlSourceRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/seed', seedRoutes);
 
 app.get('/', (req, res) => {
