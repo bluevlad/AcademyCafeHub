@@ -10,7 +10,7 @@ services:
       - PORT=8082
       - NODE_ENV=production
       - MONGODB_URI=mongodb://mongo:27017/academyinsight
-      - JWT_SECRET=academyinsight_jwt_secret_key_2024
+      - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRE=7d
       - TZ=Asia/Seoul
       - CRAWL_ENABLED=true
