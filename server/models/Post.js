@@ -65,5 +65,6 @@ const postSchema = new mongoose.Schema({
 postSchema.index({ keyword: 1, postedAt: -1 });
 postSchema.index({ academy: 1, postedAt: -1 });
 postSchema.index({ source: 1, postedAt: -1 });
+postSchema.index({ postedAt: -1 });
 
 module.exports = mongoose.model('Post', postSchema);

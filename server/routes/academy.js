@@ -11,16 +11,24 @@ const { protect } = require('../middleware/auth');
  */
 router.get('/', async (req, res) => {
   try {
-    const academies = await Academy.find().sort({ name: 1 });
-
-    // 각 학원별 수집 게시글 수 집계
-    const result = await Promise.all(academies.map(async (academy) => {
-      const postCount = await Post.countDocuments({ academy: academy._id });
-      return {
-        ...academy.toObject(),
-        postCount
-      };
-    }));
+    const result = await Academy.aggregate([
+      { $sort: { name: 1 } },
+      { $lookup: {
+          from: 'posts',
+          localField: '_id',
+          foreignField: 'academy',
+          pipeline: [{ $count: 'count' }],
+          as: 'postStats'
+        }
+      },
+      { $addFields: {
+          postCount: {
+            $ifNull: [{ $arrayElemAt: ['$postStats.count', 0] }, 0]
+          }
+        }
+      },
+      { $project: { postStats: 0 } }
+    ]);
 
     res.json({ success: true, data: result });
   } catch (error) {
@@ -35,13 +43,15 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   try {
-    const academy = await Academy.findById(req.params.id);
+    const [academy, postCount, sources] = await Promise.all([
+      Academy.findById(req.params.id),
+      Post.countDocuments({ academy: req.params.id }),
+      CrawlSource.find({ isActive: true }).lean()
+    ]);
+
     if (!academy) {
       return res.status(404).json({ success: false, error: '학원을 찾을 수 없습니다' });
     }
-
-    const postCount = await Post.countDocuments({ academy: academy._id });
-    const sources = await CrawlSource.find({ isActive: true });
 
     res.json({
       success: true,

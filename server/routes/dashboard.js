@@ -81,39 +81,46 @@ router.get('/academy-ranking', async (req, res) => {
     const yesterday = getYesterdayRange();
     const weekStart = getWeekStart();
 
-    const [todayAgg, yesterdayAgg, weekAgg, academies] = await Promise.all([
-      Post.aggregate([
-        { $match: { postedAt: { $gte: today.start, $lt: today.end } } },
-        { $group: { _id: '$academy', count: { $sum: 1 } } }
-      ]),
-      Post.aggregate([
-        { $match: { postedAt: { $gte: yesterday.start, $lt: yesterday.end } } },
-        { $group: { _id: '$academy', count: { $sum: 1 } } }
-      ]),
-      Post.aggregate([
-        { $match: { postedAt: { $gte: weekStart, $lt: today.end } } },
-        { $group: { _id: '$academy', count: { $sum: 1 } } }
-      ]),
-      Academy.find({ isActive: true }).lean()
+    const ranking = await Post.aggregate([
+      { $match: { postedAt: { $gte: weekStart, $lt: today.end } } },
+      { $group: {
+          _id: '$academy',
+          todayCount: {
+            $sum: { $cond: [{ $gte: ['$postedAt', today.start] }, 1, 0] }
+          },
+          yesterdayCount: {
+            $sum: {
+              $cond: [{
+                $and: [
+                  { $gte: ['$postedAt', yesterday.start] },
+                  { $lt: ['$postedAt', today.start] }
+                ]
+              }, 1, 0]
+            }
+          },
+          weekCount: { $sum: 1 }
+        }
+      },
+      { $lookup: {
+          from: 'academies',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'academy'
+        }
+      },
+      { $unwind: { path: '$academy', preserveNullAndEmptyArrays: true } },
+      { $match: { 'academy.isActive': { $ne: false } } },
+      { $project: {
+          _id: 1,
+          name: '$academy.name',
+          todayCount: 1,
+          yesterdayCount: 1,
+          weekCount: 1,
+          change: { $subtract: ['$todayCount', '$yesterdayCount'] }
+        }
+      },
+      { $sort: { todayCount: -1 } }
     ]);
-
-    const todayMap = Object.fromEntries(todayAgg.map(r => [r._id.toString(), r.count]));
-    const yesterdayMap = Object.fromEntries(yesterdayAgg.map(r => [r._id.toString(), r.count]));
-    const weekMap = Object.fromEntries(weekAgg.map(r => [r._id.toString(), r.count]));
-
-    const ranking = academies.map(a => {
-      const id = a._id.toString();
-      const todayCount = todayMap[id] || 0;
-      const yesterdayCount = yesterdayMap[id] || 0;
-      return {
-        _id: a._id,
-        name: a.name,
-        todayCount,
-        yesterdayCount,
-        weekCount: weekMap[id] || 0,
-        change: todayCount - yesterdayCount
-      };
-    }).sort((a, b) => b.todayCount - a.todayCount);
 
     res.json({ success: true, data: ranking });
   } catch (err) {
@@ -129,44 +136,53 @@ router.get('/source-activity', async (req, res) => {
     const yesterday = getYesterdayRange();
     const weekStart = getWeekStart();
 
-    const [todayAgg, yesterdayAgg, weekAgg, sources] = await Promise.all([
-      Post.aggregate([
-        { $match: { postedAt: { $gte: today.start, $lt: today.end } } },
-        { $group: { _id: '$source', count: { $sum: 1 } } }
-      ]),
-      Post.aggregate([
-        { $match: { postedAt: { $gte: yesterday.start, $lt: yesterday.end } } },
-        { $group: { _id: '$source', count: { $sum: 1 } } }
-      ]),
-      Post.aggregate([
-        { $match: { postedAt: { $gte: weekStart, $lt: today.end } } },
-        { $group: { _id: '$source', count: { $sum: 1 } } }
-      ]),
-      CrawlSource.find({ isActive: true }).lean()
+    const activity = await Post.aggregate([
+      { $match: { postedAt: { $gte: weekStart, $lt: today.end } } },
+      { $group: {
+          _id: '$source',
+          todayCount: {
+            $sum: { $cond: [{ $gte: ['$postedAt', today.start] }, 1, 0] }
+          },
+          yesterdayCount: {
+            $sum: {
+              $cond: [{
+                $and: [
+                  { $gte: ['$postedAt', yesterday.start] },
+                  { $lt: ['$postedAt', today.start] }
+                ]
+              }, 1, 0]
+            }
+          },
+          weekCount: { $sum: 1 }
+        }
+      },
+      { $lookup: {
+          from: 'crawlsources',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'source'
+        }
+      },
+      { $unwind: { path: '$source', preserveNullAndEmptyArrays: true } },
+      { $match: { 'source.isActive': { $ne: false } } },
+      { $project: {
+          _id: 1,
+          name: '$source.name',
+          sourceType: '$source.sourceType',
+          todayCount: 1,
+          yesterdayCount: 1,
+          changeRate: {
+            $cond: [
+              { $gt: ['$yesterdayCount', 0] },
+              { $round: [{ $multiply: [{ $divide: [{ $subtract: ['$todayCount', '$yesterdayCount'] }, '$yesterdayCount'] }, 100] }, 0] },
+              { $cond: [{ $gt: ['$todayCount', 0] }, 100, 0] }
+            ]
+          },
+          weekAvg: { $round: [{ $divide: ['$weekCount', 7] }, 1] }
+        }
+      },
+      { $sort: { todayCount: -1 } }
     ]);
-
-    const todayMap = Object.fromEntries(todayAgg.map(r => [r._id.toString(), r.count]));
-    const yesterdayMap = Object.fromEntries(yesterdayAgg.map(r => [r._id.toString(), r.count]));
-    const weekMap = Object.fromEntries(weekAgg.map(r => [r._id.toString(), r.count]));
-
-    const activity = sources.map(s => {
-      const id = s._id.toString();
-      const todayCount = todayMap[id] || 0;
-      const yesterdayCount = yesterdayMap[id] || 0;
-      const weekCount = weekMap[id] || 0;
-      const changeRate = yesterdayCount > 0
-        ? Math.round(((todayCount - yesterdayCount) / yesterdayCount) * 100)
-        : (todayCount > 0 ? 100 : 0);
-      return {
-        _id: s._id,
-        name: s.name,
-        sourceType: s.sourceType,
-        todayCount,
-        yesterdayCount,
-        changeRate,
-        weekAvg: Math.round((weekCount / 7) * 10) / 10
-      };
-    }).sort((a, b) => b.todayCount - a.todayCount);
 
     res.json({ success: true, data: activity });
   } catch (err) {
