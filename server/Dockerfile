@@ -24,9 +24,6 @@ RUN npm install --omit=dev
 # Copy server files
 COPY server/ ./server/
 
-# Copy environment file
-COPY .env* ./
-
 EXPOSE 8082
 
 ENV PORT=8082

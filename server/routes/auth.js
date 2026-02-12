@@ -47,9 +47,10 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Register error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Internal server error'
     });
   }
 });
@@ -95,9 +96,10 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Internal server error'
     });
   }
 });
