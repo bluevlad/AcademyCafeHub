@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const CrawlSource = require('../models/CrawlSource');
+const { protect } = require('../middleware/auth');
 
 /**
  * @route   GET /api/crawl-sources
@@ -28,7 +29,7 @@ router.get('/', async (req, res) => {
  * @route   POST /api/crawl-sources
  * @desc    크롤링 소스 등록
  */
-router.post('/', async (req, res) => {
+router.post('/', protect, async (req, res) => {
   try {
     const { name, url, sourceType, sourceId, crawlConfig } = req.body;
 
@@ -51,7 +52,7 @@ router.post('/', async (req, res) => {
  * @route   PUT /api/crawl-sources/:id
  * @desc    크롤링 소스 수정
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect, async (req, res) => {
   try {
     const { name, url, sourceType, sourceId, isActive, crawlConfig } = req.body;
 

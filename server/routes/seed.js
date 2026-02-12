@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Academy = require('../models/Academy');
 const CrawlSource = require('../models/CrawlSource');
+const { protect } = require('../middleware/auth');
 
 const academies = [
   { name: '박문각', nameEn: 'PMG', slug: 'pmg', keywords: ['박문각', 'PMG', '박문각공무원'] },
@@ -24,7 +25,7 @@ const crawlSources = [
  * @route   POST /api/seed/init
  * @desc    초기 데이터 시딩 (멱등)
  */
-router.post('/init', async (req, res) => {
+router.post('/init', protect, async (req, res) => {
   try {
     const results = { academies: { created: 0, skipped: 0 }, sources: { created: 0, skipped: 0 } };
 
