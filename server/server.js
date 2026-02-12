@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth');
 const crawlerRoutes = require('./routes/crawler');
 const academyRoutes = require('./routes/academy');
@@ -18,12 +20,37 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 
+// 보안 헤더
+app.use(helmet());
+
+// CORS
 const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
 app.use(cors({
   origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
+
+// Rate Limiting - 인증 엔드포인트
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { success: false, message: 'Too many requests, please try again later.' }
+});
+
+// Rate Limiting - 크롤러 엔드포인트
+const crawlerLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Too many crawler requests, please try again later.' }
+});
+
+// Rate Limiting - 일반 API
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { success: false, message: 'Too many requests, please try again later.' }
+});
 
 // MongoDB 연결 (필수 - 크롤러 데이터 저장에 필요)
 const mongoUri = process.env.MONGODB_URI;
@@ -36,13 +63,13 @@ if (mongoUri) {
 }
 
 // 라우트 등록
-app.use('/api/auth', authRoutes);
-app.use('/api/crawler', crawlerRoutes);
-app.use('/api/academies', academyRoutes);
-app.use('/api/crawl-sources', crawlSourceRoutes);
-app.use('/api/posts', postRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/seed', seedRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/crawler', crawlerLimiter, crawlerRoutes);
+app.use('/api/academies', apiLimiter, academyRoutes);
+app.use('/api/crawl-sources', apiLimiter, crawlSourceRoutes);
+app.use('/api/posts', apiLimiter, postRoutes);
+app.use('/api/dashboard', apiLimiter, dashboardRoutes);
+app.use('/api/seed', apiLimiter, seedRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to AcademyInsight API' });

@@ -5,6 +5,7 @@ const CrawlerManager = require('../services/CrawlerManager');
 const CrawlSource = require('../models/CrawlSource');
 const CrawlJob = require('../models/CrawlJob');
 const CrawlerFactory = require('../services/crawlers/CrawlerFactory');
+const { protect } = require('../middleware/auth');
 
 /**
  * @route   POST /api/crawler/naver-cafe/search
@@ -129,7 +130,7 @@ router.post('/naver-cafe/batch-search', async (req, res) => {
  * @desc    범용 크롤링 검색 (sourceType 지정, persist 옵션)
  * @body    sourceType, sourceUrl, keyword, maxResults, startDate, endDate, persist, academyId
  */
-router.post('/search', async (req, res) => {
+router.post('/search', protect, async (req, res) => {
   let crawler = null;
 
   try {
@@ -177,7 +178,7 @@ router.post('/search', async (req, res) => {
  * @route   POST /api/crawler/crawl-academy/:academyId
  * @desc    학원 전체 크롤링
  */
-router.post('/crawl-academy/:academyId', async (req, res) => {
+router.post('/crawl-academy/:academyId', protect, async (req, res) => {
   try {
     const { academyId } = req.params;
     const { maxResults, startDate, endDate } = req.body;
@@ -202,7 +203,7 @@ router.post('/crawl-academy/:academyId', async (req, res) => {
  * @route   POST /api/crawler/crawl-all
  * @desc    전체 학원 크롤링
  */
-router.post('/crawl-all', async (req, res) => {
+router.post('/crawl-all', protect, async (req, res) => {
   try {
     const { maxResults, startDate, endDate } = req.body;
 

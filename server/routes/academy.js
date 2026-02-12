@@ -3,6 +3,7 @@ const router = express.Router();
 const Academy = require('../models/Academy');
 const Post = require('../models/Post');
 const CrawlSource = require('../models/CrawlSource');
+const { protect } = require('../middleware/auth');
 
 /**
  * @route   GET /api/academies
@@ -60,7 +61,7 @@ router.get('/:id', async (req, res) => {
  * @route   POST /api/academies
  * @desc    학원 등록
  */
-router.post('/', async (req, res) => {
+router.post('/', protect, async (req, res) => {
   try {
     const { name, nameEn, slug, keywords } = req.body;
 
@@ -83,7 +84,7 @@ router.post('/', async (req, res) => {
  * @route   PUT /api/academies/:id
  * @desc    학원 수정
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect, async (req, res) => {
   try {
     const { name, nameEn, slug, keywords, isActive } = req.body;
 
