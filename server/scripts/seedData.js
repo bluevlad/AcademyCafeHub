@@ -13,35 +13,35 @@ const academies = [
     name: '박문각',
     nameEn: 'PMG',
     slug: 'pmg',
-    keywords: ['박문각', 'PMG', '박문각공무원'],
+    keywords: ['박문각', '박문각공무원', '박문각 후기', '신영식 행정법', '김중규 헌법'],
     isActive: true
   },
   {
     name: '에듀윌',
     nameEn: 'Eduwill',
     slug: 'eduwill',
-    keywords: ['에듀윌', '에듀윌공무원'],
+    keywords: ['에듀윌', '에듀윌공무원', '에듀윌 후기', '에듀윌 환불'],
     isActive: true
   },
   {
     name: '해커스공무원',
     nameEn: 'Hackers',
     slug: 'hackers',
-    keywords: ['해커스공무원', '해커스패스'],
+    keywords: ['해커스공무원', '해커스패스', '해커스 공무원 후기', '해커스공무원 인강'],
     isActive: true
   },
   {
     name: '공단기',
     nameEn: 'Gongdangi',
     slug: 'gongdangi',
-    keywords: ['공단기', '공단기닷컴'],
+    keywords: ['공단기', '공단기닷컴', '공단기 후기', '공단기 환불'],
     isActive: true
   },
   {
     name: '윌비스',
-    nameEn: 'Willbes',
-    slug: 'willbes',
-    keywords: ['윌비스', '윌비스공무원'],
+    nameEn: 'Willvis',
+    slug: 'willvis',
+    keywords: ['윌비스', '윌비스공무원', '윌비스 후기'],
     isActive: true
   }
 ];
@@ -107,6 +107,7 @@ async function seedData() {
     // 학원 데이터 upsert
     let academyCreated = 0;
     let academySkipped = 0;
+    let academyUpdated = 0;
     for (const academy of academies) {
       const existing = await Academy.findOne({ slug: academy.slug });
       if (!existing) {
@@ -114,11 +115,20 @@ async function seedData() {
         academyCreated++;
         console.log(`  [+] 학원 생성: ${academy.name}`);
       } else {
-        academySkipped++;
-        console.log(`  [=] 학원 이미 존재: ${academy.name}`);
+        const newKeywords = academy.keywords.filter(kw => !existing.keywords.includes(kw));
+        if (newKeywords.length > 0) {
+          await Academy.findByIdAndUpdate(existing._id, {
+            $addToSet: { keywords: { $each: academy.keywords } }
+          });
+          academyUpdated++;
+          console.log(`  [↑] 학원 키워드 업데이트: ${academy.name} (+${newKeywords.join(', ')})`);
+        } else {
+          academySkipped++;
+          console.log(`  [=] 학원 이미 최신: ${academy.name}`);
+        }
       }
     }
-    console.log(`학원: ${academyCreated}개 생성, ${academySkipped}개 스킵\n`);
+    console.log(`학원: ${academyCreated}개 생성, ${academyUpdated}개 업데이트, ${academySkipped}개 스킵\n`);
 
     // 크롤링 소스 upsert
     let sourceCreated = 0;
