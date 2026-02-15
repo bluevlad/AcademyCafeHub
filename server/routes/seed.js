@@ -5,11 +5,11 @@ const CrawlSource = require('../models/CrawlSource');
 const { protect } = require('../middleware/auth');
 
 const academies = [
-  { name: '박문각', nameEn: 'PMG', slug: 'pmg', keywords: ['박문각', 'PMG', '박문각공무원'] },
-  { name: '에듀윌', nameEn: 'Eduwill', slug: 'eduwill', keywords: ['에듀윌', '에듀윌공무원'] },
-  { name: '해커스공무원', nameEn: 'Hackers', slug: 'hackers', keywords: ['해커스공무원', '해커스패스'] },
-  { name: '공단기', nameEn: 'Gongdangi', slug: 'gongdangi', keywords: ['공단기', '공단기닷컴'] },
-  { name: '윌비스', nameEn: 'Willvis', slug: 'willvis', keywords: ['윌비스', '윌비스공무원'] }
+  { name: '박문각', nameEn: 'PMG', slug: 'pmg', keywords: ['박문각', '박문각공무원', '박문각 후기', '신영식 행정법', '김중규 헌법'] },
+  { name: '에듀윌', nameEn: 'Eduwill', slug: 'eduwill', keywords: ['에듀윌', '에듀윌공무원', '에듀윌 후기', '에듀윌 환불'] },
+  { name: '해커스공무원', nameEn: 'Hackers', slug: 'hackers', keywords: ['해커스공무원', '해커스패스', '해커스 공무원 후기', '해커스공무원 인강'] },
+  { name: '공단기', nameEn: 'Gongdangi', slug: 'gongdangi', keywords: ['공단기', '공단기닷컴', '공단기 후기', '공단기 환불'] },
+  { name: '윌비스', nameEn: 'Willvis', slug: 'willvis', keywords: ['윌비스', '윌비스공무원', '윌비스 후기'] }
 ];
 
 const crawlSources = [
@@ -27,7 +27,7 @@ const crawlSources = [
  */
 router.post('/init', protect, async (req, res) => {
   try {
-    const results = { academies: { created: 0, skipped: 0 }, sources: { created: 0, skipped: 0 } };
+    const results = { academies: { created: 0, skipped: 0, updated: 0 }, sources: { created: 0, skipped: 0 } };
 
     for (const academy of academies) {
       const existing = await Academy.findOne({ slug: academy.slug });
@@ -35,7 +35,15 @@ router.post('/init', protect, async (req, res) => {
         await Academy.create(academy);
         results.academies.created++;
       } else {
-        results.academies.skipped++;
+        const newKeywords = academy.keywords.filter(kw => !existing.keywords.includes(kw));
+        if (newKeywords.length > 0) {
+          await Academy.findByIdAndUpdate(existing._id, {
+            $addToSet: { keywords: { $each: academy.keywords } }
+          });
+          results.academies.updated++;
+        } else {
+          results.academies.skipped++;
+        }
       }
     }
 
