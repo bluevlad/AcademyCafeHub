@@ -10,8 +10,6 @@ const AdminDashboard = () => {
   const [dailyAnalysis, setDailyAnalysis] = useState([]);
   const [dailyMeta, setDailyMeta] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [hubStatus, setHubStatus] = useState(null);
   const [error, setError] = useState(null);
 
   const apiUrl = '';
@@ -41,18 +39,9 @@ const AdminDashboard = () => {
       }
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
-      setError('데이터를 불러오는데 실패했습니다. TeacherHub 연결을 확인해주세요.');
+      setError('데이터를 불러오는데 실패했습니다. 데이터 서버 연결을 확인해주세요.');
     } finally {
       setLoading(false);
-    }
-  }, [apiUrl]);
-
-  const fetchHubStatus = useCallback(async () => {
-    try {
-      const res = await axios.get(`${apiUrl}/api/dashboard/health`);
-      if (res.data.success) setHubStatus(res.data.data);
-    } catch {
-      setHubStatus({ connected: false, url: '' });
     }
   }, [apiUrl]);
 
@@ -103,15 +92,9 @@ const AdminDashboard = () => {
       <div style={styles.header}>
         <div>
           <h1 style={styles.title}>AcademyInsight</h1>
-          <p style={styles.subtitle}>강사 평판 분석 대시보드 (TeacherHub 연동)</p>
+          <p style={styles.subtitle}>Academy Analytics Platform</p>
         </div>
         <div style={styles.headerActions}>
-          <button onClick={() => { setShowAdmin(!showAdmin); if (!showAdmin) fetchHubStatus(); }} style={{
-            ...styles.linkButton,
-            backgroundColor: showAdmin ? '#495057' : '#6c757d'
-          }}>
-            관리 패널
-          </button>
           <button onClick={fetchData} style={styles.refreshButton}>
             새로고침
           </button>
@@ -153,29 +136,6 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* 관리 패널 (접이식) */}
-      {showAdmin && (
-        <div style={styles.adminPanel}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#495057' }}>TeacherHub 연결 상태</h3>
-          {hubStatus ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{
-                display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%',
-                backgroundColor: hubStatus.connected ? '#28a745' : '#dc3545'
-              }} />
-              <span style={{ fontSize: '14px', color: hubStatus.connected ? '#28a745' : '#dc3545' }}>
-                {hubStatus.connected ? '연결됨' : '연결 실패'}
-              </span>
-              <span style={{ fontSize: '12px', color: '#999', marginLeft: '8px' }}>
-                {hubStatus.url}
-              </span>
-            </div>
-          ) : (
-            <span style={{ fontSize: '13px', color: '#999' }}>확인 중...</span>
-          )}
-        </div>
-      )}
 
       {/* 강사 멘션 랭킹 */}
       <h2 style={styles.sectionTitle}>강사 멘션 랭킹 (오늘)</h2>
@@ -366,15 +326,6 @@ const styles = {
   title: { margin: 0, fontSize: '24px', color: '#333', fontWeight: 'bold' },
   subtitle: { margin: '4px 0 0', fontSize: '13px', color: '#888' },
   headerActions: { display: 'flex', gap: '8px' },
-  linkButton: {
-    padding: '8px 16px',
-    backgroundColor: '#6c757d',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '13px'
-  },
   refreshButton: {
     padding: '8px 16px',
     backgroundColor: '#6c757d',
@@ -407,13 +358,6 @@ const styles = {
   },
   summaryValue: { fontSize: '28px', fontWeight: 'bold', color: '#333', wordBreak: 'break-all' },
   summaryLabel: { fontSize: '14px', color: '#666', marginTop: '4px' },
-  adminPanel: {
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #dee2e6',
-    borderRadius: '8px',
-    padding: '16px',
-    marginBottom: '24px'
-  },
   sectionTitle: {
     fontSize: '18px',
     color: '#333',

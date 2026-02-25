@@ -25,7 +25,7 @@ const Login = ({ setIsAuthenticated }) => {
     try {
       await authService.login({ email, password });
       setIsAuthenticated(true);
-      navigate('/dashboard');
+      navigate('/admin');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {

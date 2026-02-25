@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const CrawlStatus = () => {
@@ -8,7 +7,6 @@ const CrawlStatus = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
 
   const apiUrl = '';
 
@@ -71,7 +69,6 @@ const CrawlStatus = () => {
     <div style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerLeft}>
-          <button onClick={() => navigate('/')} style={styles.backButton}>AcademyInsight</button>
           <h1 style={styles.title}>크롤 작업 현황</h1>
         </div>
         <button onClick={fetchJobs} style={styles.refreshButton}>새로고침</button>
@@ -190,15 +187,6 @@ const styles = {
   },
   headerLeft: { display: 'flex', alignItems: 'center', gap: '16px' },
   title: { margin: 0, fontSize: '24px', color: '#333' },
-  backButton: {
-    padding: '6px 12px',
-    backgroundColor: '#6c757d',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '13px'
-  },
   refreshButton: {
     padding: '8px 16px',
     backgroundColor: '#6c757d',

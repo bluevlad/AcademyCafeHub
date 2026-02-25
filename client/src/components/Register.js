@@ -38,7 +38,7 @@ const Register = ({ setIsAuthenticated }) => {
     try {
       await authService.register({ username, email, password });
       setIsAuthenticated(true);
-      navigate('/dashboard');
+      navigate('/admin');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
