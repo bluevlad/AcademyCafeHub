@@ -66,8 +66,8 @@ class DCInsideCrawler extends BaseCrawler {
    */
   async searchPostsInternal(keyword, maxResults, options) {
     try {
-      const galleryType = this.isMiniGallery ? 'mgallery' : 'board';
-      const searchUrl = `https://gall.dcinside.com/${galleryType}/lists/?id=${this.galleryId}&s_type=search_subject_memo&s_keyword=${encodeURIComponent(keyword)}`;
+      const basePath = this.isMiniGallery ? 'mgallery/board' : 'board';
+      const searchUrl = `https://gall.dcinside.com/${basePath}/lists/?id=${this.galleryId}&s_type=search_subject_memo&s_keyword=${encodeURIComponent(keyword)}`;
 
       console.log(`[DCInsideCrawler] Fetching: ${searchUrl}`);
 

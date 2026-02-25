@@ -170,4 +170,4 @@ if (require.main === module) {
   seedData();
 }
 
-module.exports = seedData;
+module.exports = { seedData, academies, crawlSources };

@@ -95,15 +95,22 @@ class BaseCrawler {
     const today = new Date();
     const currentYear = today.getFullYear();
 
-    // "2025.10.15" 형식
+    // "2025.10.15" 형식 (4자리 연도)
     const fullDateMatch = dateStr.match(/(\d{4})[\.\-\/](\d{1,2})[\.\-\/](\d{1,2})/);
     if (fullDateMatch) {
       const [, year, month, day] = fullDateMatch;
       return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     }
 
+    // "26/02/09" 형식 (2자리 연도) - DC인사이드 등
+    const shortYearMatch = dateStr.match(/(\d{2})[\.\-\/](\d{1,2})[\.\-\/](\d{1,2})/);
+    if (shortYearMatch) {
+      const [, shortYear, month, day] = shortYearMatch;
+      return new Date(2000 + parseInt(shortYear), parseInt(month) - 1, parseInt(day));
+    }
+
     // "10.15" 또는 "10.15." 형식 (올해)
-    const shortDateMatch = dateStr.match(/(\d{1,2})\.(\d{1,2})\.?/);
+    const shortDateMatch = dateStr.match(/^(\d{1,2})\.(\d{1,2})\.?$/);
     if (shortDateMatch) {
       const [, month, day] = shortDateMatch;
       return new Date(currentYear, parseInt(month) - 1, parseInt(day));
