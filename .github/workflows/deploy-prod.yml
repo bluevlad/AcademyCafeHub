@@ -16,6 +16,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Copy .env from project root
+        run: |
+          ENV_SOURCE="/Users/rainend/GIT/AcademyInsight/.env"
+          if [ -f "$ENV_SOURCE" ]; then
+            cp "$ENV_SOURCE" .env
+            echo ".env copied from project root"
+          else
+            echo "ERROR: .env not found at $ENV_SOURCE"
+            exit 1
+          fi
+
       - name: Build Docker images
         run: docker compose build --no-cache
 

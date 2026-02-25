@@ -13,6 +13,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRE=7d
       - TZ=Asia/Seoul
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4020,http://insight.unmong.com
       - CRAWL_ENABLED=true
       - CRAWL_SCHEDULE=0 4 * * *
       - NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
