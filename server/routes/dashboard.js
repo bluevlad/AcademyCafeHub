@@ -198,4 +198,15 @@ router.get('/health', async (req, res) => {
   }
 });
 
+// GET /api/dashboard/cache-stats
+router.get('/cache-stats', (req, res) => {
+  res.json({ success: true, data: teacherHub.getCacheStats() });
+});
+
+// POST /api/dashboard/cache-clear
+router.post('/cache-clear', (req, res) => {
+  teacherHub.clearCache();
+  res.json({ success: true, message: 'Cache cleared' });
+});
+
 module.exports = router;
